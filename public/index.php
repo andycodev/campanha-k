@@ -1,5 +1,14 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Si quieres ver si es un problema de permisos de escritura:
+if (!is_writable(__DIR__ . '/../storage/framework/views')) {
+    die("ERROR DE PERMISOS: La carpeta storage/framework/views no es escribible.");
+}
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
@@ -18,8 +27,3 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
 $app->handleRequest(Request::capture());
-
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
