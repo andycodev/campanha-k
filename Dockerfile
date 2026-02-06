@@ -26,6 +26,13 @@ COPY . .
 # Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
+# --- NUEVAS LÍNEAS DE OPTIMIZACIÓN ---
+# Estas líneas aceleran el arranque de la API en Render
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+# -------------------------------------
+
 # Dar permisos a las carpetas de almacenamiento
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
