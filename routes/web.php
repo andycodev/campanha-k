@@ -2,7 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Texto plano, sin JSON ni lógica de DB
 Route::get('/', function () {
-    return 'Campanha-K API Online';
+    return response()->json([
+        'app' => 'Campanha-K API',
+        'status' => 'Online',
+        'environment' => app()->environment(),
+        'database' => 'Connected to Neon'
+    ]);
 });
