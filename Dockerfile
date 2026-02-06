@@ -26,15 +26,20 @@ COPY . .
 # Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# --- NUEVAS LÍNEAS DE OPTIMIZACIÓN ---
-# Estas líneas aceleran el arranque de la API en Render
-#RUN php artisan config:cache
-#RUN php artisan route:cache
-#RUN php artisan view:cache
+# --- NUEVAS LÍNEAS DE OPTIMIZACIÓN Y LIMPIEZA ---
+# Limpiamos cualquier caché previo que se haya copiado del local
+RUN php artisan config:clear
+RUN php artisan route:clear
+RUN php artisan cache:clear
 # -------------------------------------
 
-# Dar permisos a las carpetas de almacenamiento
+# Generamos el caché fresco dentro del contenedor
+RUN php artisan config:cache
+RUN php artisan route:cache
+
+# Dar permisos (Asegúrate de incluir chmod para escritura)
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Puerto que usa Render internamente
 EXPOSE 10000
