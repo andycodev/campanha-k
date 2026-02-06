@@ -2,47 +2,30 @@ FROM php:8.2-fpm
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libpq-dev
+    git curl libpng-dev libonig-dev libxml2-dev zip unzip libpq-dev
 
-# Instalar extensiones de PHP necesarias para Laravel y PostgreSQL
+# Instalar extensiones de PHP
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configurar el directorio de trabajo
 WORKDIR /var/www
 
-# Copiar el proyecto
+# Copiamos el proyecto
 COPY . .
 
-# Instalar dependencias de Laravel
-RUN composer install --no-dev --optimize-autoloader
+# Instalamos dependencias SIN ejecutar scripts automáticos de Laravel
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# --- NUEVAS LÍNEAS DE OPTIMIZACIÓN Y LIMPIEZA ---
-# Limpiamos cualquier caché previo que se haya copiado del local
-RUN php artisan config:clear
-RUN php artisan route:clear
-RUN php artisan cache:clear
-# -------------------------------------
+# Borramos cualquier archivo de caché que se haya subido por error desde tu PC local
+RUN rm -rf bootstrap/cache/*.php storage/framework/cache/data/* storage/framework/views/*.php
 
-# Generamos el caché fresco dentro del contenedor
-RUN php artisan config:cache
-RUN php artisan route:cache
-
-# Dar permisos (Asegúrate de incluir chmod para escritura)
+# Ajustamos permisos
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Puerto que usa Render internamente
 EXPOSE 10000
 
-# Comando para iniciar el servidor
-CMD php artisan serve --host=0.0.0.0 --port=10000
+# El comando CMD ahora limpiará el caché justo antes de arrancar el servidor
+CMD php artisan config:clear && php artisan route:clear && php artisan serve --host=0.0.0.0 --port=10000
