@@ -55,17 +55,37 @@ class PersonController extends Controller
         return response()->json(['message' => 'Familia creada', 'data' => $family], 201);
     }
 
-    public function storePerson(Request $request)
+    public function store(Request $request)
     {
+        $nombreInput = trim($request->full_name);
+
+        // 1. Buscamos duplicado global
+        // Usamos ILIKE para que 'juan' sea igual a 'JUAN'
+        $duplicado = Person::with(['family.sector'])
+            ->where('full_name', 'ILIKE', $nombreInput)
+            ->first();
+
+        // 2. Si existe y no viene con la bandera de 'force_save'
+        if ($duplicado && !$request->has('force_save')) {
+            return response()->json([
+                'status' => 'duplicate',
+                'message' => "Ya existe una persona con ese nombre en el sector: " . $duplicado->family->sector->name,
+                'data' => $duplicado
+            ], 422);
+        }
+
+        // 3. Validación normal
         $validated = $request->validate([
             'family_id' => 'required|exists:families,id',
-            'full_name' => 'required|string',
+            'full_name' => 'required|string|max:255',
             'dni' => 'nullable|digits:8|unique:people,dni',
             'disposition' => 'required|in:seguro,duda,opositor',
             'personal_request' => 'nullable|string',
         ]);
+
         $person = Person::create($validated);
-        return response()->json(['message' => 'Persona registrada', 'data' => $person], 201);
+
+        return response()->json(['message' => 'Registrado con éxito', 'data' => $person], 201);
     }
 
     // --- ACTUALIZACIÓN (UPDATE) ---

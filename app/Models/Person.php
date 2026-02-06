@@ -20,4 +20,16 @@ class Person extends Model
     {
         return $this->belongsTo(Family::class);
     }
+
+    public function setFullNameAttribute($value)
+    {
+        $this->attributes['full_name'] = mb_strtoupper($this->quitarTildes(trim($value)), 'UTF-8');
+    }
+
+    private function quitarTildes($cadena)
+    {
+        $buscar  = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú'];
+        $reemplazar = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'];
+        return str_replace($buscar, $reemplazar, $cadena);
+    }
 }

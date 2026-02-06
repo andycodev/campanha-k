@@ -36,4 +36,5 @@ RUN chmod -R 775 /var/www/storage
 # El comando CMD ahora limpiará el caché justo antes de arrancar el servidor
 #CMD php artisan config:clear && php artisan route:clear && php artisan serve --host=0.0.0.0 --port=10000
 # Cambia el CMD final por este:
-CMD php artisan config:clear && php artisan route:clear && php -S 0.0.0.0:10000 -t public
+# Usamos ['sh', '-c', ...] para que entienda los comandos múltiples
+CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan serve --host=0.0.0.0 --port=10000"]
