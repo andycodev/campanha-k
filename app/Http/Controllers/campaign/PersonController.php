@@ -55,7 +55,7 @@ class PersonController extends Controller
         return response()->json(['message' => 'Familia creada', 'data' => $family], 201);
     }
 
-    public function store(Request $request)
+    public function storePerson(Request $request)
     {
         $nombreInput = trim($request->full_name);
 
@@ -137,4 +137,7 @@ class PersonController extends Controller
         $person->update($validated);
         return response()->json(['message' => 'Datos de persona actualizados', 'data' => $person]);
     }
+
+    // --- ELIMINACION (UPDATE) ---
+
 }
